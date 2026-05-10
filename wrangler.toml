@@ -1,13 +1,4 @@
 name = "wifarm-backend"
-main = "src/main.py"
+main = "src/main.py"  # This must match your file path
 compatibility_date = "2024-05-01"
 compatibility_flags = ["python_workers"]
-
-[[d1_databases]]
-binding = "DB"
-database_name = "wifarm_db"
-database_id = "your-d1-uuid-here"
-
-[[r2_buckets]]
-binding = "BUCKET"
-bucket_name = "wifarm-documents"
