@@ -1,0 +1,23 @@
+import jwt
+import datetime
+from cryptography.fernet import Fernet
+
+class SecurityManager:
+    def __init__(self, secret_key: str, encryption_key: bytes):
+        self.secret = secret_key
+        self.fernet = Fernet(encryption_key)
+
+    def encrypt_pii(self, data: str) -> str:
+        return self.fernet.encrypt(data.encode()).decode()
+
+    def decrypt_pii(self, token: str) -> str:
+        return self.fernet.decrypt(token.encode()).decode()
+
+    def generate_token(self, user_id: int, role: str):
+        payload = {
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=8),
+            "iat": datetime.datetime.utcnow(),
+            "sub": user_id,
+            "role": role
+        }
+        return jwt.encode(payload, self.secret, algorithm="HS256")
