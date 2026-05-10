@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>WIFARM | Internal Management</title>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <!-- Search Bar -->
+    <nav class="bg-green-800 p-4 text-white flex justify-between items-center">
+        <h1 class="text-xl font-bold">WIFARM AGRONOMICS</h1>
+        <div class="flex gap-2">
+            <input type="text" placeholder="NIN, Plate, or Name..." class="px-4 py-2 rounded text-black w-64">
+            <button class="bg-yellow-500 px-4 py-2 rounded font-bold">Search</button>
+        </div>
+    </nav>
+
+    <main class="p-8">
+        <!-- Dashboard Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 shadow rounded border-l-4 border-red-500">
+                <h3 class="text-sm uppercase font-bold text-gray-500">Total Arrears</h3>
+                <p class="text-3xl font-bold text-red-600">UGX 45,200,000</p>
+            </div>
+            <div class="bg-white p-6 shadow rounded border-l-4 border-green-500">
+                <h3 class="text-sm uppercase font-bold text-gray-500">Active Assets</h3>
+                <p class="text-3xl font-bold text-green-700">124 Tractors</p>
+            </div>
+            <div class="bg-white p-6 shadow rounded border-l-4 border-blue-500">
+                <h3 class="text-sm uppercase font-bold text-gray-500">CEO Sync Status</h3>
+                <p class="text-xl font-bold text-orange-500">Pending: Gulu, Mbarara</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="fixed bottom-0 w-full text-center p-4 bg-gray-100 text-sm">
+        © 2026 Wifarm Agronomics Uganda Limited.
+    </footer>
+</body>
+</html>
