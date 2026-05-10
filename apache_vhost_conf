@@ -2,3 +2,22 @@
 RewriteEngine On
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# Configure Reverse Proxy for the Python Backend (FastAPI/Flask)
+# Assuming the app runs on localhost:8000 via Uvicorn/Gunicorn
+ProxyPreserveHost On
+ProxyPass / http://127.0.0.1:8000/
+ProxyPassReverse / http://127.0.0.1:8000/
+
+# Security Headers
+Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+Header always set X-Frame-Options "DENY"
+Header always set X-Content-Type-Options "nosniff"
+
+# Log files
+ErrorLog ${APACHE_LOG_DIR}/wifarm_error.log
+CustomLog ${APACHE_LOG_DIR}/wifarm_access.log combined
+
+# SSL is handled by Cloudflare (Origin Certificate)
+SSLEngine on
+SSLCertificateFile /etc/ssl/certs/wifarm_origin_cert.pem
+SSLCertificateKeyFile /etc/ssl/private/wifarm_origin_key.key
