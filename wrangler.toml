@@ -1,5 +1,5 @@
 name = "wifarm-agronomics-uganda-limited"
-main = "main.py"
+main = "app.py"
 compatibility_date = "2026-05-11"
 
 # CRITICAL: This line enables the Python runtime
