@@ -1,407 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Wifarm Agronomics Uganda Limited</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; }
-    header {
-      background: linear-gradient(135deg, #276749, #38a169);
-      color: white; padding: 16px 32px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    header h1 { font-size: 1.3rem; }
-    header span { font-size: 0.85rem; opacity: 0.85; }
-    nav {
-      background: #fff; border-bottom: 2px solid #e2e8f0;
-      display: flex; gap: 4px; padding: 0 24px;
-    }
-    nav button {
-      padding: 12px 20px; border: none; background: none;
-      cursor: pointer; font-size: 0.9rem; color: #4a5568;
-      border-bottom: 3px solid transparent; transition: all 0.2s;
-    }
-    nav button.active, nav button:hover {
-      color: #276749; border-bottom-color: #276749; font-weight: 600;
-    }
-    main { padding: 24px; max-width: 1100px; margin: auto; }
-    .card {
-      background: white; border-radius: 12px; padding: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 20px;
-    }
-    .card h2 { font-size: 1.1rem; margin-bottom: 16px; color: #276749; }
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
-    .stat { background: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-    .stat .num { font-size: 2rem; font-weight: 700; color: #276749; }
-    .stat .lbl { font-size: 0.8rem; color: #718096; margin-top: 4px; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    th { background: #f7fafc; text-align: left; padding: 10px 14px; color: #4a5568; font-weight: 600; border-bottom: 2px solid #e2e8f0; }
-    td { padding: 10px 14px; border-bottom: 1px solid #f0f4f8; }
-    tr:hover td { background: #f7fff9; }
-    .badge { padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
-    .badge.active { background: #c6f6d5; color: #276749; }
-    .badge.synced { background: #c6f6d5; color: #276749; }
-    .badge.unsynced { background: #fed7d7; color: #c53030; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    input, select { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; }
-    input:focus, select:focus { outline: none; border-color: #38a169; }
-    .btn { padding: 10px 24px; background: #276749; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; margin-top: 12px; }
-    .btn:hover { background: #1e5036; }
-    .btn.secondary { background: #e2e8f0; color: #4a5568; }
-    .btn.secondary:hover { background: #cbd5e0; }
-    .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.9rem; }
-    .alert.success { background: #c6f6d5; color: #276749; }
-    .alert.error { background: #fed7d7; color: #c53030; }
-    .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #276749, #38a169); }
-    .login-box { background: white; border-radius: 16px; padding: 40px; width: 360px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
-    .login-box h2 { color: #276749; margin-bottom: 8px; }
-    .login-box p { color: #718096; font-size: 0.85rem; margin-bottom: 24px; }
-    .login-box input { margin-bottom: 12px; }
-    #app { display: none; }
-    .section { display: none; }
-    .section.active { display: block; }
-    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .detail-item label { font-size: 0.78rem; color: #718096; display: block; margin-bottom: 2px; }
-    .detail-item span { font-weight: 600; }
-    .ceo-status { padding: 16px 20px; border-radius: 10px; font-weight: 700; font-size: 1rem; margin-bottom: 20px; }
-    .ceo-status.ok { background: #c6f6d5; color: #276749; }
-    .ceo-status.warn { background: #fefcbf; color: #744210; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WIFARM AGRONOMICS | Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .wifarm-green { color: #2d5a27; }
+        .bg-wifarm { background-color: #2d5a27; }
+    </style>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen font-sans">
 
-<!-- LOGIN SCREEN -->
-<div id="loginScreen">
-  <div class="login-wrap">
-    <div class="login-box">
-      <h2>🌿 Wifarm Agronomics</h2>
-      <p>Uganda Limited — Staff Portal</p>
-      <div id="loginAlert"></div>
-      <input type="text" id="username" placeholder="Username" />
-      <input type="password" id="password" placeholder="Password" />
-      <button class="btn" style="width:100%" onclick="doLogin()">Sign In</button>
-    </div>
-  </div>
-</div>
-
-<!-- MAIN APP -->
-<div id="app">
-  <header>
-    <h1>🌿 Wifarm Agronomics Uganda Limited</h1>
-    <span id="userLabel"></span>
-  </header>
-  <nav>
-    <button class="active" onclick="showSection('dashboard', this)">Dashboard</button>
-    <button onclick="showSection('clients', this)">Clients</button>
-    <button onclick="showSection('loans', this)">Loans</button>
-    <button onclick="showSection('inventory', this)">Inventory</button>
-    <button onclick="showSection('calculator', this)">Loan Calculator</button>
-    <button onclick="doLogout()" style="margin-left:auto;color:#c53030">Logout</button>
-  </nav>
-  <main>
-
-    <!-- DASHBOARD -->
-    <div id="sec-dashboard" class="section active">
-      <div class="stats" id="dashStats"></div>
-      <div class="card">
-        <h2>Recent Clients</h2>
-        <table><thead><tr><th>Name</th><th>Phone</th><th>Next of Kin</th><th>Registered</th></tr></thead>
-        <tbody id="recentClients"></tbody></table>
-      </div>
-    </div>
-
-    <!-- CLIENTS -->
-    <div id="sec-clients" class="section">
-      <div class="card">
-        <h2>Register New Client</h2>
-        <div id="clientAlert"></div>
-        <div class="form-grid">
-          <input id="c_name" placeholder="Full Name *" />
-          <input id="c_phone" placeholder="Phone Number" />
-          <input id="c_kin" placeholder="Next of Kin" />
-          <input id="c_nin" placeholder="NIN (will be encrypted)" />
-          <input id="c_lc1" placeholder="LC1 Document URL" />
+    <nav class="bg-wifarm text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-tight">WIFARM AGRONOMICS UGANDA LTD</h1>
+            <div id="user-info" class="text-sm italic"></div>
+            <button onclick="logout()" class="text-xs bg-red-600 px-3 py-1 rounded">Logout</button>
         </div>
-        <button class="btn" onclick="registerClient()">Register Client</button>
-      </div>
-      <div class="card">
-        <h2>All Clients</h2>
-        <table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Next of Kin</th><th>Registered</th><th>Action</th></tr></thead>
-        <tbody id="clientsTable"></tbody></table>
-      </div>
-    </div>
+    </nav>
 
-    <!-- CLIENT DETAIL MODAL -->
-    <div id="sec-clientdetail" class="section">
-      <button class="btn secondary" onclick="showSection('clients', null)">← Back to Clients</button>
-      <div class="card" style="margin-top:16px">
-        <h2>Client Details</h2>
-        <div class="detail-grid" id="clientDetailGrid"></div>
-      </div>
-      <div class="card">
-        <h2>Client Loans</h2>
-        <table><thead><tr><th>Loan ID</th><th>Principal</th><th>Balance</th><th>Arrears</th><th>Rate</th><th>Status</th></tr></thead>
-        <tbody id="clientLoansTable"></tbody></table>
-      </div>
-    </div>
-
-    <!-- LOANS -->
-    <div id="sec-loans" class="section">
-      <div class="card">
-        <h2>Create New Loan</h2>
-        <div id="loanAlert"></div>
-        <div class="form-grid">
-          <input id="l_client" placeholder="Client ID *" type="number" />
-          <input id="l_amount" placeholder="Principal Amount (UGX) *" type="number" />
-          <input id="l_rate" placeholder="Interest Rate (%)" type="number" step="0.1" />
-        </div>
-        <button class="btn" onclick="createLoan()">Create Loan</button>
-      </div>
-      <div class="card">
-        <h2>All Loans</h2>
-        <table><thead><tr><th>ID</th><th>Client</th><th>Principal</th><th>Balance</th><th>Arrears</th><th>Rate</th><th>Status</th></tr></thead>
-        <tbody id="loansTable"></tbody></table>
-      </div>
-    </div>
-
-    <!-- INVENTORY (CEO DASHBOARD) -->
-    <div id="sec-inventory" class="section">
-      <div id="ceoBanner"></div>
-      <div class="card">
-        <h2>Branch Inventory</h2>
-        <table><thead><tr><th>Branch</th><th>Item</th><th>Stock</th><th>Sync Status</th><th>Last Updated</th></tr></thead>
-        <tbody id="inventoryTable"></tbody></table>
-      </div>
-    </div>
-
-    <!-- LOAN CALCULATOR -->
-    <div id="sec-calculator" class="section">
-      <div class="card">
-        <h2>Loan Exposure Calculator</h2>
-        <div class="form-grid">
-          <input id="calc_balance" placeholder="Current Balance (UGX)" type="number" />
-          <input id="calc_arrears" placeholder="Arrears (UGX)" type="number" />
-          <input id="calc_rate" placeholder="Penalty Rate (%)" type="number" step="0.1" />
-        </div>
-        <button class="btn" onclick="runCalculator()">Calculate</button>
-        <div id="calcResult" style="margin-top:16px"></div>
-      </div>
-    </div>
-
-  </main>
-</div>
-
-<script>
-  const BASE = "https://wifarm-agronomics-uganda-limited.johndamalie.workers.dev";
-  let TOKEN = localStorage.getItem("wifarm_token") || null;
-
-  // ── Auth ──────────────────────────────────────────────────────────────────
-  async function doLogin() {
-    const u = document.getElementById("username").value.trim();
-    const p = document.getElementById("password").value.trim();
-    const res = await fetch(`${BASE}/login`, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({username: u, password: p})
-    });
-    const data = await res.json();
-    if (data.token) {
-      TOKEN = data.token;
-      localStorage.setItem("wifarm_token", TOKEN);
-      localStorage.setItem("wifarm_user", data.username);
-      bootApp();
-    } else {
-      document.getElementById("loginAlert").innerHTML =
-        `<div class="alert error">${data.error || "Invalid credentials"}</div>`;
-    }
-  }
-
-  function doLogout() {
-    localStorage.removeItem("wifarm_token");
-    localStorage.removeItem("wifarm_user");
-    TOKEN = null;
-    document.getElementById("app").style.display = "none";
-    document.getElementById("loginScreen").style.display = "block";
-  }
-
-  function bootApp() {
-    document.getElementById("loginScreen").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    document.getElementById("userLabel").textContent =
-      "Logged in as: " + (localStorage.getItem("wifarm_user") || "Staff");
-    loadDashboard();
-  }
-
-  if (TOKEN) bootApp();
-
-  async function api(path, method="GET", body=null) {
-    const opts = {
-      method,
-      headers: {"Content-Type":"application/json", "Authorization": `Bearer ${TOKEN}`}
-    };
-    if (body) opts.body = JSON.stringify(body);
-    const res = await fetch(`${BASE}${path}`, opts);
-    if (res.status === 401) { doLogout(); return null; }
-    return res.json();
-  }
-
-  // ── Navigation ────────────────────────────────────────────────────────────
-  function showSection(name, btn) {
-    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-    document.getElementById(`sec-${name}`).classList.add("active");
-    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-    if (btn) btn.classList.add("active");
-    if (name === "dashboard") loadDashboard();
-    if (name === "clients") loadClients();
-    if (name === "loans") loadLoans();
-    if (name === "inventory") loadInventory();
-  }
-
-  function fmt(n) { return Number(n).toLocaleString("en-UG"); }
-  function date(d) { return d ? d.split("T")[0] : "—"; }
-
-  // ── Dashboard ─────────────────────────────────────────────────────────────
-  async function loadDashboard() {
-    const [clients, loans, inv] = await Promise.all([
-      api("/clients"), api("/loans"), api("/inventory")
-    ]);
-    const totalLoans = loans ? loans.reduce((s,l) => s + (l.balance||0), 0) : 0;
-    const arrears = loans ? loans.reduce((s,l) => s + (l.arrears||0), 0) : 0;
-    document.getElementById("dashStats").innerHTML = `
-      <div class="stat"><div class="num">${clients ? clients.length : 0}</div><div class="lbl">Total Clients</div></div>
-      <div class="stat"><div class="num">${loans ? loans.length : 0}</div><div class="lbl">Active Loans</div></div>
-      <div class="stat"><div class="num">UGX ${fmt(totalLoans)}</div><div class="lbl">Loan Book</div></div>
-      <div class="stat"><div class="num">UGX ${fmt(arrears)}</div><div class="lbl">Total Arrears</div></div>
-    `;
-    const recent = clients ? clients.slice(0,5) : [];
-    document.getElementById("recentClients").innerHTML = recent.map(c => `
-      <tr><td>${c.full_name}</td><td>${c.contact_phone||"—"}</td><td>${c.next_of_kin||"—"}</td><td>${date(c.created_at)}</td></tr>
-    `).join("") || "<tr><td colspan=4 style='color:#aaa;text-align:center'>No clients yet</td></tr>";
-  }
-
-  // ── Clients ───────────────────────────────────────────────────────────────
-  async function loadClients() {
-    const data = await api("/clients");
-    document.getElementById("clientsTable").innerHTML = (data||[]).map(c => `
-      <tr>
-        <td>${c.id}</td><td>${c.full_name}</td><td>${c.contact_phone||"—"}</td>
-        <td>${c.next_of_kin||"—"}</td><td>${date(c.created_at)}</td>
-        <td><button class="btn" style="padding:5px 12px;font-size:0.8rem" onclick="viewClient(${c.id})">View</button></td>
-      </tr>`).join("") || "<tr><td colspan=6 style='color:#aaa;text-align:center'>No clients yet</td></tr>";
-  }
-
-  async function registerClient() {
-    const body = {
-      full_name: document.getElementById("c_name").value,
-      contact_phone: document.getElementById("c_phone").value,
-      next_of_kin: document.getElementById("c_kin").value,
-      nin_encrypted: document.getElementById("c_nin").value,
-      lc1_doc_url: document.getElementById("c_lc1").value
-    };
-    if (!body.full_name) { showAlert("clientAlert", "Full name is required", "error"); return; }
-    const res = await api("/clients", "POST", body);
-    if (res && res.message) {
-      showAlert("clientAlert", "Client registered successfully!", "success");
-      ["c_name","c_phone","c_kin","c_nin","c_lc1"].forEach(id => document.getElementById(id).value = "");
-      loadClients();
-    } else {
-      showAlert("clientAlert", res?.error || "Failed to register", "error");
-    }
-  }
-
-  async function viewClient(id) {
-    const [client, loans] = await Promise.all([api(`/clients/${id}`), api("/loans")]);
-    if (!client) return;
-    document.getElementById("clientDetailGrid").innerHTML = `
-      <div class="detail-item"><label>Full Name</label><span>${client.full_name}</span></div>
-      <div class="detail-item"><label>Phone</label><span>${client.contact_phone||"—"}</span></div>
-      <div class="detail-item"><label>Next of Kin</label><span>${client.next_of_kin||"—"}</span></div>
-      <div class="detail-item"><label>LC1 Doc</label><span>${client.lc1_doc_url||"—"}</span></div>
-      <div class="detail-item"><label>Registered</label><span>${date(client.created_at)}</span></div>
-    `;
-    const clientLoans = (loans||[]).filter(l => l.client_id == id || l.full_name == client.full_name);
-    document.getElementById("clientLoansTable").innerHTML = clientLoans.map(l => `
-      <tr>
-        <td>${l.id}</td><td>UGX ${fmt(l.principal_amount)}</td><td>UGX ${fmt(l.balance)}</td>
-        <td>UGX ${fmt(l.arrears)}</td><td>${l.interest_rate}%</td>
-        <td><span class="badge active">${l.status}</span></td>
-      </tr>`).join("") || "<tr><td colspan=6 style='color:#aaa;text-align:center'>No loans for this client</td></tr>";
-    showSection("clientdetail", null);
-  }
-
-  // ── Loans ─────────────────────────────────────────────────────────────────
-  async function loadLoans() {
-    const data = await api("/loans");
-    document.getElementById("loansTable").innerHTML = (data||[]).map(l => `
-      <tr>
-        <td>${l.id}</td><td>${l.full_name}</td><td>UGX ${fmt(l.principal_amount)}</td>
-        <td>UGX ${fmt(l.balance)}</td><td>UGX ${fmt(l.arrears)}</td>
-        <td>${l.interest_rate}%</td><td><span class="badge active">${l.status}</span></td>
-      </tr>`).join("") || "<tr><td colspan=7 style='color:#aaa;text-align:center'>No loans yet</td></tr>";
-  }
-
-  async function createLoan() {
-    const body = {
-      client_id: document.getElementById("l_client").value,
-      principal_amount: document.getElementById("l_amount").value,
-      interest_rate: document.getElementById("l_rate").value || 0
-    };
-    if (!body.client_id || !body.principal_amount) { showAlert("loanAlert","Client ID and amount required","error"); return; }
-    const res = await api("/loans","POST",body);
-    if (res && res.message) {
-      showAlert("loanAlert","Loan created successfully!","success");
-      ["l_client","l_amount","l_rate"].forEach(id => document.getElementById(id).value="");
-      loadLoans();
-    } else {
-      showAlert("loanAlert", res?.error||"Failed to create loan","error");
-    }
-  }
-
-  // ── Inventory ─────────────────────────────────────────────────────────────
-  async function loadInventory() {
-    const data = await api("/inventory");
-    if (!data) return;
-    const isOk = data.dashboard_status === "Balanced";
-    document.getElementById("ceoBanner").innerHTML =
-      `<div class="ceo-status ${isOk?'ok':'warn'}">CEO Dashboard: ${data.dashboard_status}</div>`;
-    document.getElementById("inventoryTable").innerHTML = (data.inventory||[]).map(i => `
-      <tr>
-        <td>${i.branch_name}</td><td>${i.item_name}</td><td>${i.stock_count}</td>
-        <td><span class="badge ${i.is_synced?'synced':'unsynced'}">${i.is_synced?'Synced':'Pending'}</span></td>
-        <td>${date(i.updated_at)}</td>
-      </tr>`).join("") || "<tr><td colspan=5 style='color:#aaa;text-align:center'>No inventory data</td></tr>";
-  }
-
-  // ── Calculator ────────────────────────────────────────────────────────────
-  async function runCalculator() {
-    const body = {
-      balance: document.getElementById("calc_balance").value,
-      arrears: document.getElementById("calc_arrears").value,
-      rate: document.getElementById("calc_rate").value
-    };
-    const res = await api("/loan/calculate","POST",body);
-    if (res) {
-      document.getElementById("calcResult").innerHTML = `
-        <div class="card" style="background:#f7fff9">
-          <div class="detail-grid">
-            <div class="detail-item"><label>Principal Balance</label><span>UGX ${fmt(res.principal_balance)}</span></div>
-            <div class="detail-item"><label>Arrears</label><span>UGX ${fmt(res.arrears)}</span></div>
-            <div class="detail-item"><label>Interest Penalty</label><span>UGX ${fmt(res.interest_penalty)}</span></div>
-            <div class="detail-item" style="background:#c6f6d5;padding:12px;border-radius:8px">
-              <label>Total Payable</label><span style="color:#276749;font-size:1.2rem">UGX ${fmt(res.total_payable)}</span>
+    <main class="container mx-auto p-6">
+        
+        <section class="mb-8">
+            <div class="max-w-2xl mx-auto relative">
+                <label class="block text-gray-700 font-bold mb-2">Search Area (Client, Plate, or Serial)</label>
+                <input type="text" id="global-search" 
+                       placeholder="Enter Name, Number Plate, or Serial Code..." 
+                       class="w-full p-4 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none shadow-sm"
+                       onkeyup="handleSearch(this.value)">
+                
+                <div id="search-results" class="absolute w-full mt-1 bg-white border rounded-lg shadow-xl hidden z-50">
+                    </div>
             </div>
-          </div>
-        </div>`;
-    }
-  }
+        </section>
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
-  function showAlert(id, msg, type) {
-    document.getElementById(id).innerHTML = `<div class="alert ${type}">${msg}</div>`;
-    setTimeout(() => document.getElementById(id).innerHTML = "", 4000);
-  }
-</script>
+        <hr class="my-8 border-gray-300">
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="glass p-6 rounded-xl border-l-4 border-green-600 shadow-md">
+                <h3 class="text-gray-500 text-sm font-bold uppercase">Account Balance</h3>
+                <p id="total-balance" class="text-3xl font-black wifarm-green">UGX 0</p>
+            </div>
+
+            <div class="glass p-6 rounded-xl border-l-4 border-red-600 shadow-md">
+                <h3 class="text-gray-500 text-sm font-bold uppercase">Total Arrears</h3>
+                <p id="total-arrears" class="text-3xl font-black text-red-600">UGX 0</p>
+            </div>
+
+            <div class="glass p-6 rounded-xl border-l-4 border-blue-600 shadow-md">
+                <h3 class="text-gray-500 text-sm font-bold uppercase">Branch Sync Status</h3>
+                <p id="sync-status" class="text-lg font-bold text-blue-800">Checking...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="fixed bottom-0 w-full bg-white border-t p-4 text-center text-gray-500 text-xs">
+        &copy; 2026 Wifarm Agronomics Uganda Limited. All Rights Reserved.
+    </footer>
+
+    <script>
+        const API_BASE = "https://your-worker-url.workers.dev"; // UPDATE THIS
+
+        async function handleSearch(query) {
+            const resultsBox = document.getElementById('search-results');
+            if (query.length < 2) {
+                resultsBox.classList.add('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/search`, {
+                    headers: { 
+                        'Authorization': `Bearer ${localStorage.getItem('wifarm_token')}`,
+                        'X-Search-Query': query 
+                    }
+                });
+                const data = await response.json();
+                
+                resultsBox.innerHTML = '';
+                if (data.length > 0) {
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = "p-3 hover:bg-gray-100 cursor-pointer border-b flex justify-between";
+                        div.innerHTML = `
+                            <span><strong>${item.full_name || item.number_plate}</strong></span>
+                            <span class="text-xs bg-gray-200 px-2 py-1 rounded text-gray-600">${item.type}</span>
+                        `;
+                        div.onclick = () => loadClientDetails(item.id);
+                        resultsBox.appendChild(div);
+                    });
+                    resultsBox.classList.remove('hidden');
+                } else {
+                    resultsBox.classList.add('hidden');
+                }
+            } catch (err) {
+                console.error("Search failed", err);
+            }
+        }
+
+        async function loadClientDetails(id) {
+            // Logic to fetch client specific balance/arrears
+            const resp = await fetch(`${API_BASE}/client-summary?id=${id}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('wifarm_token')}` }
+            });
+            const data = await resp.json();
+            document.getElementById('total-balance').innerText = `UGX ${data.balance.toLocaleString()}`;
+            document.getElementById('total-arrears').innerText = `UGX ${data.arrears.toLocaleString()}`;
+            document.getElementById('search-results').classList.add('hidden');
+        }
+
+        // Initialize Page
+        window.onload = () => {
+            const token = localStorage.getItem('wifarm_token');
+            if (!token) window.location.href = "/login.html";
+            document.getElementById('user-info').innerText = `Role: ${localStorage.getItem('wifarm_role')}`;
+        };
+
+        function logout() {
+            localStorage.clear();
+            window.location.reload();
+        }
+    </script>
 </body>
 </html>
