@@ -1,4 +1,4 @@
 name = "wifarm-backend"
-main = "src/main.py"  # This must match your file path
+main = "app.py"# This must match your file path
 compatibility_date = "2024-05-01"
 compatibility_flags = ["python_workers"]
