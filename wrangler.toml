@@ -1,12 +1,7 @@
 name = "wifarm-agronomics-uganda-limited"
-main = "app.py"
+main = "app.py" 
 compatibility_date = "2024-05-11"
 compatibility_flags = ["python_workers"]
-
-# This is the correct syntax to force the Python SDK version
-[vars]
-# Some environments use this as an alternative to the [python_workers] block
-PYODIDE_PACKAGE_VERSION = "0.26.0" 
 
 [[d1_databases]]
 binding = "DB"
