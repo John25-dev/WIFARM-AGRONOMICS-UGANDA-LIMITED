@@ -1,198 +1,173 @@
-from js import Response, Headers
-import json, time, base64, hmac, hashlib
+import json
+import hashlib
+import base64
+import time
+from js import Response, crypto, TextEncoder, Object
 
-# ── Config ────────────────────────────────────────────────────────────────────
-SECRET = "wifarm-secret-2026"
-USERS  = {
-    "admin":   {"password": "wifarm@admin",   "role": "admin"},
-    "ceo":     {"password": "wifarm@ceo",     "role": "ceo"},
-    "officer": {"password": "wifarm@officer", "role": "officer"},
-}
+JWT_SECRET = "wifarm-secret-key-change-in-production"
 
-# ── Minimal JWT (HS256) ───────────────────────────────────────────────────────
-def b64url(data: bytes) -> str:
-    return base64.urlsafe_b64encode(data).rstrip(b"=").decode()
+# ─── Helpers ────────────────────────────────────────────────────
 
-def make_token(username: str, role: str) -> str:
-    header  = b64url(json.dumps({"alg":"HS256","typ":"JWT"}).encode())
-    payload = b64url(json.dumps({"sub":username,"role":role,"exp":int(time.time())+86400}).encode())
-    sig     = b64url(hmac.new(SECRET.encode(), f"{header}.{payload}".encode(), hashlib.sha256).digest())
-    return f"{header}.{payload}.{sig}"
+def json_response(data, status=200):
+    headers = {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Authorization, Content-Type",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+    }
+    return Response.new(json.dumps(data), status=status, headers=headers)
 
-def verify_token(token: str):
+def hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def b64url_encode(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).rstrip(b'=').decode()
+
+def b64url_decode(s: str) -> bytes:
+    padding = 4 - len(s) % 4
+    if padding != 4:
+        s += '=' * padding
+    return base64.urlsafe_b64decode(s)
+
+def create_token(user_id, username, role) -> str:
+    header = b64url_encode(json.dumps({"alg": "HS256", "typ": "JWT"}).encode())
+    payload = b64url_encode(json.dumps({
+        "user_id": user_id,
+        "username": username,
+        "role": role,
+        "exp": int(time.time()) + 28800  # 8 hours
+    }).encode())
+    import hmac as hmac_lib
+    signature = hmac_lib.new(
+        JWT_SECRET.encode(),
+        f"{header}.{payload}".encode(),
+        hashlib.sha256
+    ).digest()
+    return f"{header}.{payload}.{b64url_encode(signature)}"
+
+def verify_token(request):
+    auth = request.headers.get("Authorization") or ""
+    if not auth.startswith("Bearer "):
+        return None
+    token = auth[7:]
     try:
         parts = token.split(".")
-        if len(parts) != 3: return None
-        header, payload, sig = parts
-        expected = b64url(hmac.new(SECRET.encode(), f"{header}.{payload}".encode(), hashlib.sha256).digest())
-        if sig != expected: return None
-        pad = 4 - len(payload) % 4
-        data = json.loads(base64.urlsafe_b64decode(payload + "=" * pad))
-        if data.get("exp", 0) < int(time.time()): return None
-        return data
-    except:
+        if len(parts) != 3:
+            return None
+        header_payload = f"{parts[0]}.{parts[1]}"
+        import hmac as hmac_lib
+        expected_sig = hmac_lib.new(
+            JWT_SECRET.encode(),
+            header_payload.encode(),
+            hashlib.sha256
+        ).digest()
+        actual_sig = b64url_decode(parts[2])
+        if expected_sig != actual_sig:
+            return None
+        payload = json.loads(b64url_decode(parts[1]))
+        if payload.get("exp", 0) < int(time.time()):
+            return None
+        return payload
+    except Exception:
         return None
 
-def get_user(request):
-    auth = request.headers.get("Authorization") or ""
-    if not auth.startswith("Bearer "): return None
-    return verify_token(auth[7:])
+# ─── Route Handlers ─────────────────────────────────────────────
 
-# ── Business Logic ────────────────────────────────────────────────────────────
-class LoanCalculator:
-    @staticmethod
-    def calculate_total_due(balance, arrears, rate):
-        penalty = arrears * (rate / 100)
-        return {
-            "principal_balance": balance,
-            "arrears": arrears,
-            "interest_penalty": penalty,
-            "total_payable": balance + arrears + penalty
-        }
+async def handle_login(request, env):
+    try:
+        body = await request.json()
+        username = body.get("username", "")
+        password = body.get("password", "")
+        password_hash = hash_password(password)
 
-class AssetTracker:
-    @staticmethod
-    def process_gps(lat1, lon1, lat2, lon2, last_time):
-        delta  = abs(lat1 - lat2) + abs(lon1 - lon2)
-        status = "Moving" if delta > 0.0001 else "Parked"
-        return {"status": status, "last_seen": last_time}
+        result = await env.DB.prepare(
+            "SELECT id, username, role FROM users WHERE username = ? AND password_hash = ?"
+        ).bind(username, password_hash).first()
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-def json_response(data, status=200):
-    h = Headers.new({"Content-Type": "application/json",
-                     "Access-Control-Allow-Origin": "*"}.items())
-    return Response.new(json.dumps(data), headers=h, status=status)
+        if not result:
+            return json_response({"error": "Invalid credentials"}, 401)
 
-def unauthorized():
-    return json_response({"error": "Unauthorized — please log in"}, 401)
+        token = create_token(result["id"], result["username"], result["role"])
+        return json_response({"token": token, "role": result["role"]})
+    except Exception as e:
+        return json_response({"error": str(e)}, 500)
 
-# ── Entry Point ───────────────────────────────────────────────────────────────
-async def on_fetch(request, env):
-    url    = request.url
-    method = request.method
-
-    # CORS preflight
-    if method == "OPTIONS":
-        h = Headers.new({
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type,Authorization"
-        }.items())
-        return Response.new("", headers=h, status=204)
-
-    # ── POST /login (public) ──────────────────────────────────────────────────
-    if "/login" in url and method == "POST":
-        data = await request.json()
-        u    = USERS.get(data.get("username",""))
-        if u and u["password"] == data.get("password",""):
-            token = make_token(data["username"], u["role"])
-            return json_response({"token": token, "username": data["username"], "role": u["role"]})
-        return json_response({"error": "Invalid username or password"}, 401)
-
-    # ── GET /health (public) ──────────────────────────────────────────────────
-    if "/health" in url and method == "GET":
-        return json_response({"status": "ok", "service": "Wifarm Agronomics Uganda Limited"})
-
-    # ── All routes below require a valid token ────────────────────────────────
-    user = get_user(request)
+async def handle_get_clients(request, env):
+    user = verify_token(request)
     if not user:
-        return unauthorized()
+        return json_response({"error": "Unauthorized \u2014 please log in"}, 401)
+    try:
+        results = await env.DB.prepare("SELECT * FROM clients").all()
+        return json_response(list(results.results))
+    except Exception as e:
+        return json_response({"error": str(e)}, 500)
 
-    # GET /clients/<id>
-    path = url.split(".dev")[-1].split("?")[0]
-    parts = [p for p in path.split("/") if p]
-    if len(parts) == 2 and parts[0] == "clients" and method == "GET":
-        try:
-            cid    = int(parts[1])
-            result = await env.DB.prepare(
-                "SELECT id, full_name, contact_phone, next_of_kin, lc1_doc_url, created_at FROM clients WHERE id = ?"
-            ).bind(cid).first()
-            if not result:
-                return json_response({"error": "Client not found"}, 404)
-            return json_response(dict(result))
-        except Exception as e:
-            return json_response({"error": str(e)}, 500)
+async def handle_add_client(request, env):
+    user = verify_token(request)
+    if not user:
+        return json_response({"error": "Unauthorized"}, 401)
+    try:
+        body = await request.json()
+        await env.DB.prepare(
+            "INSERT INTO clients (full_name, contact_phone, next_of_kin) VALUES (?, ?, ?)"
+        ).bind(body.get("full_name"), body.get("contact_phone"), body.get("next_of_kin")).run()
+        return json_response({"success": True, "message": "Client added"})
+    except Exception as e:
+        return json_response({"error": str(e)}, 500)
 
-    # GET /clients
-    if "/clients" in url and method == "GET":
-        try:
-            result = await env.DB.prepare(
-                "SELECT id, full_name, contact_phone, next_of_kin, created_at FROM clients ORDER BY created_at DESC"
-            ).all()
-            return json_response([dict(r) for r in result.results])
-        except Exception as e:
-            return json_response({"error": str(e)}, 500)
+async def handle_get_loans(request, env):
+    user = verify_token(request)
+    if not user:
+        return json_response({"error": "Unauthorized"}, 401)
+    try:
+        results = await env.DB.prepare(
+            "SELECT loans.*, clients.full_name FROM loans JOIN clients ON loans.client_id = clients.id"
+        ).all()
+        return json_response(list(results.results))
+    except Exception as e:
+        return json_response({"error": str(e)}, 500)
 
-    # POST /clients
-    if "/clients" in url and method == "POST":
-        try:
-            data = await request.json()
-            await env.DB.prepare(
-                "INSERT INTO clients (full_name, nin_encrypted, contact_phone, next_of_kin, lc1_doc_url) VALUES (?,?,?,?,?)"
-            ).bind(data.get("full_name"), data.get("nin_encrypted",""),
-                   data.get("contact_phone",""), data.get("next_of_kin",""),
-                   data.get("lc1_doc_url","")).run()
-            return json_response({"message": "Client registered successfully"}, 201)
-        except Exception as e:
-            return json_response({"error": str(e)}, 500)
+async def handle_ceo_dashboard(request, env):
+    user = verify_token(request)
+    if not user or user.get("role") != "ceo":
+        return json_response({"error": "Forbidden \u2014 CEO access only"}, 403)
+    try:
+        unsynced = await env.DB.prepare(
+            "SELECT COUNT(*) as count FROM branch_inventory WHERE is_synced = FALSE"
+        ).first()
+        loans = await env.DB.prepare(
+            "SELECT SUM(balance) as total FROM loans WHERE status='ACTIVE'"
+        ).first()
+        status = "Balanced" if unsynced["count"] == 0 else f"Unbalanced \u2014 {unsynced['count']} branches pending"
+        return json_response({
+            "inventory_status": status,
+            "total_loan_exposure": loans["total"] or 0
+        })
+    except Exception as e:
+        return json_response({"error": str(e)}, 500)
 
-    # GET /loans
-    if "/loans" in url and method == "GET":
-        try:
-            result = await env.DB.prepare(
-                "SELECT l.id, l.client_id, c.full_name, l.principal_amount, l.balance, l.arrears, l.interest_rate, l.status FROM loans l JOIN clients c ON l.client_id = c.id"
-            ).all()
-            return json_response([dict(r) for r in result.results])
-        except Exception as e:
-            return json_response({"error": str(e)}, 500)
+# ─── Main Router ─────────────────────────────────────────────────
 
-    # POST /loans
-    if "/loans" in url and method == "POST":
-        try:
-            data = await request.json()
-            amt  = float(data.get("principal_amount"))
-            await env.DB.prepare(
-                "INSERT INTO loans (client_id, principal_amount, interest_rate, balance, arrears) VALUES (?,?,?,?,?)"
-            ).bind(int(data.get("client_id")), amt,
-                   float(data.get("interest_rate", 0)), amt, 0.0).run()
-            return json_response({"message": "Loan created successfully"}, 201)
-        except Exception as e:
-            return json_response({"error": str(e)}, 500)
+async def on_fetch(request, env):
+    method = request.method
+    url = str(request.url)
 
-    # POST /loan/calculate
-    if "/loan/calculate" in url and method == "POST":
-        try:
-            data   = await request.json()
-            result = LoanCalculator.calculate_total_due(
-                float(data.get("balance", 0)),
-                float(data.get("arrears", 0)),
-                float(data.get("rate", 0))
-            )
-            return json_response(result)
-        except Exception as e:
-            return json_response({"error": str(e)}, 400)
+    if method == "OPTIONS":
+        return Response.new("", status=204, headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Authorization, Content-Type"
+        })
 
-    # GET /inventory
-    if "/inventory" in url and method == "GET":
-        try:
-            unsynced  = await env.DB.prepare(
-                "SELECT COUNT(*) as count FROM branch_inventory WHERE is_synced = FALSE"
-            ).first()
-            all_stock = await env.DB.prepare(
-                "SELECT branch_name, item_name, stock_count, is_synced, updated_at FROM branch_inventory ORDER BY branch_name"
-            ).all()
-            status = "Balanced" if unsynced["count"] == 0 else f"Unbalanced — {unsynced['count']} branch(es) pending sync"
-            return json_response({"dashboard_status": status, "inventory": [dict(r) for r in all_stock.results]})
-        except Exception as e:
-            return json_response({"error": str(e)}, 500)
+    if "/login" in url and method == "POST":
+        return await handle_login(request, env)
+    elif "/clients" in url and method == "GET":
+        return await handle_get_clients(request, env)
+    elif "/clients" in url and method == "POST":
+        return await handle_add_client(request, env)
+    elif "/loans" in url and method == "GET":
+        return await handle_get_loans(request, env)
+    elif "/dashboard" in url and method == "GET":
+        return await handle_ceo_dashboard(request, env)
 
-    # GET /asset/track
-    if "/asset/track" in url and method == "GET":
-        return json_response(AssetTracker.process_gps(0.3136, 32.5811, 0.3137, 32.5812, "2026-05-11T16:00:00Z"))
-
-    # 404
-    return json_response({"error": "Route not found", "routes": [
-        "POST /login", "GET /health", "GET /clients", "POST /clients",
-        "GET /clients/<id>", "GET /loans", "POST /loans",
-        "POST /loan/calculate", "GET /inventory", "GET /asset/track"
-    ]}, 404)
+    return json_response({"error": "Route not found"}, 404)
