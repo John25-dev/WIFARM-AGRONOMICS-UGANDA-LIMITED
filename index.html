@@ -3,126 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WIFARM AGRONOMICS | Management System</title>
+    <title>Client Onboarding | WIFARM</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        .wifarm-green { color: #2d5a27; }
-        .bg-wifarm { background-color: #2d5a27; }
-    </style>
 </head>
-<body class="bg-gray-100 min-h-screen font-sans">
+<body class="bg-gray-50 min-h-screen">
 
-    <nav class="bg-wifarm text-white p-4 shadow-lg">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-tight">WIFARM AGRONOMICS UGANDA LTD</h1>
-            <div id="user-info" class="text-sm italic"></div>
-            <button onclick="logout()" class="text-xs bg-red-600 px-3 py-1 rounded">Logout</button>
-        </div>
-    </nav>
+    <div class="max-w-4xl mx-auto py-10 px-4">
+        <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
+            <div class="bg-green-800 p-6 text-white">
+                <h1 class="text-2xl font-bold">New Client Registration</h1>
+                <p class="text-sm opacity-80">Wifarm Agronomics Uganda Limited - Security Verified Onboarding</p>
+            </div>
 
-    <main class="container mx-auto p-6">
-        
-        <section class="mb-8">
-            <div class="max-w-2xl mx-auto relative">
-                <label class="block text-gray-700 font-bold mb-2">Search Area (Client, Plate, or Serial)</label>
-                <input type="text" id="global-search" 
-                       placeholder="Enter Name, Number Plate, or Serial Code..." 
-                       class="w-full p-4 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none shadow-sm"
-                       onkeyup="handleSearch(this.value)">
-                
-                <div id="search-results" class="absolute w-full mt-1 bg-white border rounded-lg shadow-xl hidden z-50">
+            <form id="onboardForm" class="p-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700">Full Name (as per National ID)</label>
+                        <input type="text" id="full_name" required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
                     </div>
-            </div>
-        </section>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700">National ID (NIN)</label>
+                        <input type="text" id="nin" placeholder="CM..." required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700">Contact Number</label>
+                        <input type="tel" id="contact_phone" placeholder="07..." required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700">Next of Kin Name</label>
+                        <input type="text" id="nok_name" required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+                    </div>
+                </div>
 
-        <hr class="my-8 border-gray-300">
+                <hr>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="glass p-6 rounded-xl border-l-4 border-green-600 shadow-md">
-                <h3 class="text-gray-500 text-sm font-bold uppercase">Account Balance</h3>
-                <p id="total-balance" class="text-3xl font-black wifarm-green">UGX 0</p>
-            </div>
+                <div>
+                    <h3 class="text-lg font-bold text-green-800 mb-4">Security Verification: Three (3) Relatives</h3>
+                    <div id="relatives-container" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border">
+                            <input type="text" placeholder="Relative 1 Name" class="rel-name p-2 border rounded" required>
+                            <input type="text" placeholder="Relationship" class="rel-relation p-2 border rounded" required>
+                            <input type="tel" placeholder="Phone Number" class="rel-phone p-2 border rounded" required>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border">
+                            <input type="text" placeholder="Relative 2 Name" class="rel-name p-2 border rounded" required>
+                            <input type="text" placeholder="Relationship" class="rel-relation p-2 border rounded" required>
+                            <input type="tel" placeholder="Phone Number" class="rel-phone p-2 border rounded" required>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border">
+                            <input type="text" placeholder="Relative 3 Name" class="rel-name p-2 border rounded" required>
+                            <input type="text" placeholder="Relationship" class="rel-relation p-2 border rounded" required>
+                            <input type="tel" placeholder="Phone Number" class="rel-phone p-2 border rounded" required>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="glass p-6 rounded-xl border-l-4 border-red-600 shadow-md">
-                <h3 class="text-gray-500 text-sm font-bold uppercase">Total Arrears</h3>
-                <p id="total-arrears" class="text-3xl font-black text-red-600">UGX 0</p>
-            </div>
-
-            <div class="glass p-6 rounded-xl border-l-4 border-blue-600 shadow-md">
-                <h3 class="text-gray-500 text-sm font-bold uppercase">Branch Sync Status</h3>
-                <p id="sync-status" class="text-lg font-bold text-blue-800">Checking...</p>
-            </div>
+                <div class="pt-6">
+                    <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-4 rounded-xl transition shadow-lg">
+                        Complete Registration & Sync to Cloud
+                    </button>
+                </div>
+            </form>
         </div>
-
-    </main>
-
-    <footer class="fixed bottom-0 w-full bg-white border-t p-4 text-center text-gray-500 text-xs">
-        &copy; 2026 Wifarm Agronomics Uganda Limited. All Rights Reserved.
-    </footer>
+    </div>
 
     <script>
-        const API_BASE = "https://your-worker-url.workers.dev"; // UPDATE THIS
+        const API_URL = "https://your-worker-url.workers.dev/onboard"; // Update with your URL
 
-        async function handleSearch(query) {
-            const resultsBox = document.getElementById('search-results');
-            if (query.length < 2) {
-                resultsBox.classList.add('hidden');
-                return;
+        document.getElementById('onboardForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Collect Relative Data
+            const relNames = document.querySelectorAll('.rel-name');
+            const relRelations = document.querySelectorAll('.rel-relation');
+            const relPhones = document.querySelectorAll('.rel-phone');
+            
+            const relatives = [];
+            for(let i=0; i<3; i++) {
+                relatives.push({
+                    name: relNames[i].value,
+                    relation: relRelations[i].value,
+                    phone: relPhones[i].value
+                });
             }
+
+            // Package the JSON payload
+            const payload = {
+                full_name: document.getElementById('full_name').value,
+                nin: document.getElementById('nin').value,
+                contact_phone: document.getElementById('contact_phone').value,
+                nok_name: document.getElementById('nok_name').value,
+                nok_phone: "N/A", // Can add field if needed
+                relatives: relatives
+            };
 
             try {
-                const response = await fetch(`${API_BASE}/search`, {
-                    headers: { 
-                        'Authorization': `Bearer ${localStorage.getItem('wifarm_token')}`,
-                        'X-Search-Query': query 
-                    }
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('wifarm_token')}`
+                    },
+                    body: JSON.stringify(payload)
                 });
-                const data = await response.json();
-                
-                resultsBox.innerHTML = '';
-                if (data.length > 0) {
-                    data.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = "p-3 hover:bg-gray-100 cursor-pointer border-b flex justify-between";
-                        div.innerHTML = `
-                            <span><strong>${item.full_name || item.number_plate}</strong></span>
-                            <span class="text-xs bg-gray-200 px-2 py-1 rounded text-gray-600">${item.type}</span>
-                        `;
-                        div.onclick = () => loadClientDetails(item.id);
-                        resultsBox.appendChild(div);
-                    });
-                    resultsBox.classList.remove('hidden');
+
+                const result = await response.json();
+                if(result.success) {
+                    alert("Client Onboarded Successfully!");
+                    window.location.href = "index.html";
                 } else {
-                    resultsBox.classList.add('hidden');
+                    alert("Error: " + result.error);
                 }
             } catch (err) {
-                console.error("Search failed", err);
+                alert("Connection failed. Check your internet.");
             }
-        }
-
-        async function loadClientDetails(id) {
-            // Logic to fetch client specific balance/arrears
-            const resp = await fetch(`${API_BASE}/client-summary?id=${id}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('wifarm_token')}` }
-            });
-            const data = await resp.json();
-            document.getElementById('total-balance').innerText = `UGX ${data.balance.toLocaleString()}`;
-            document.getElementById('total-arrears').innerText = `UGX ${data.arrears.toLocaleString()}`;
-            document.getElementById('search-results').classList.add('hidden');
-        }
-
-        // Initialize Page
-        window.onload = () => {
-            const token = localStorage.getItem('wifarm_token');
-            if (!token) window.location.href = "/login.html";
-            document.getElementById('user-info').innerText = `Role: ${localStorage.getItem('wifarm_role')}`;
-        };
-
-        function logout() {
-            localStorage.clear();
-            window.location.reload();
-        }
+        });
     </script>
 </body>
 </html>
