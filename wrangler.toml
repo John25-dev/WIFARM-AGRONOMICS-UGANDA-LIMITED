@@ -1,9 +1,11 @@
 name = "wifarm-agronomics-uganda-limited"
 main = "app.py"
 compatibility_date = "2026-05-11"
-
-# CRITICAL: This line enables the Python runtime
 compatibility_flags = ["python_workers"]
+
+# ADD THIS LINE TO FIX THE SDK ERROR
+[python_workers]
+sdk_version = ">=1.90"
 
 [[d1_databases]]
 binding = "DB"
