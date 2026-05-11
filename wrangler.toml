@@ -1,11 +1,12 @@
 name = "wifarm-agronomics-uganda-limited"
 main = "app.py"
-compatibility_date = "2026-05-11"
+compatibility_date = "2024-05-11"
 compatibility_flags = ["python_workers"]
 
-# ADD THIS LINE TO FIX THE SDK ERROR
-[python_workers]
-sdk_version = ">=1.90"
+# This is the correct syntax to force the Python SDK version
+[vars]
+# Some environments use this as an alternative to the [python_workers] block
+PYODIDE_PACKAGE_VERSION = "0.26.0" 
 
 [[d1_databases]]
 binding = "DB"
